@@ -1,8 +1,8 @@
 # Allora: A distributed cron daemon in ruby
 
-Allora allows you to run a cron scheduler (yes, the actual scheduler) on multiple
-machines within a network, without the worry of multiple machines processing the
-same job on the schedule.
+Allora (*Italian: at that time*) allows you to run a cron scheduler (yes, the actual
+scheduler) on multiple machines within a network, without the worry of multiple
+machines processing the same job on the schedule.
 
 A centralized backend is used (by default redis) in order to maintain a shared state.
 Allora also provides a basic in-memory backend, which can be used to expressly allow
@@ -172,6 +172,12 @@ the job is selected, else the job is not selected.
 
 Big thanks for jmettraux for rufus-scheduler, which I have borrowed the cron parsing logic
 from.
+
+## Disclaimer
+
+Most of this work is the result of a quick code spike on a Sunday afternoon.  There are no
+specs right now.  Use at your own risk.  I will add specs in the next day or two, if you
+prefer to wait.
 
 ## Copyright & License
 
