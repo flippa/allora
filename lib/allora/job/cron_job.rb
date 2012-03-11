@@ -22,5 +22,25 @@
 ##
 
 module Allora
-  VERSION = "0.0.1"
+  # A classic cron style job, with support for seconds.
+  class Job::CronJob < Job
+    # Initialize the CronJob with the given cron string.
+    #
+    # @param [String] cron_str
+    #   any valid cron string, which may include seconds
+    #
+    # @example
+    #   CronJob.new("*/5 * * * * *") # every 5s
+    #   CronJob.new("0,30 * * * *")  # the 0th and 30th min of each hour
+    #   CronJob.new("0 3-6 * * *")   # on the hour, every hour between 3am and 6am
+    def initialize(cron_str, &block)
+      super(&block)
+
+      @cron_line = CronLine.new(cron_str)
+    end
+
+    def next_at(from_time)
+      @cron_line.next_time(from_time)
+    end
+  end
 end

@@ -1,3 +1,26 @@
+##
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# Copyright &copy; 2012 Flippa.com Pty. Ltd.
+##
+
 module Allora
   # Worker daemon, dealing with a Backend to execute jobs at regular intervals.
   class Scheduler
@@ -9,32 +32,36 @@ module Allora
     # Options:
     #   backend:  an instance of any Backend class (defaults to Memory)
     #   interval: a floating point specifying how frequently to poll (defaults to 0.333)
+    #   logger:   an instance of a ruby Logger, or nil to disable
     #   *other:   any additonal parameters are passed to the Backend
     #
     # @param [Hash] options
     #   options for the scheduler, if any
     def initialize(opts = {})
+      require "logger"
+
       @backend  = create_backend(opts)
       @interval = opts.fetch(:interval, 0.333)
+      @logger   = opts.fetch(:logger, Logger.new(STDOUT))
       @jobs     = {}
     end
 
     # Register a new job for the given options.
     #
-    # Options:
-    #   every: a number of seconds at which to repeat the job
-    #   cron:  a cron string specifying how often to repeat the job
+    # @example
+    #   s.add("foo", :every => 5.seconds) { puts "Running!" }
+    #   s.add("bar", :cron => "*/15 * 1,10,20 * *") { puts "Bonus!" }
     #
     # @param [String] name
     #   a unique name to give this job (used for locking)
     #
-    # @param [Hash] opts
-    #   options specifying when to run the job (:every, or :cron)
+    # @param [Hash, Job] opts_or_job
+    #   options specifying when to run the job (:every, or :cron), or a Job instance.
     #
     # @return [Job]
     #   the job instance added to the schedule
-    def add(name, opts = {}, &block)
-      jobs[name.to_s] = create_job(opts, &block)
+    def add(name, opts_or_job, &block)
+      jobs[name.to_s] = create_job(opts_or_job, &block)
     end
 
     # Starts running the scheduler in a new Thread, and returns that Thread.
@@ -42,9 +69,14 @@ module Allora
     # @return [Thread]
     #   the scheduler polling Thread
     def start
+      log "Starting scheduler process, using #{@backend.class}"
+
       @thread = Thread.new do
         loop do
-          @backend.reschedule(@jobs).each { |name, job| job.execute }
+          @backend.reschedule(@jobs).each do |name, job|
+            log "Running job '#{name}'"
+            job.execute
+          end
 
           sleep(@interval)
         end
@@ -53,6 +85,7 @@ module Allora
 
     # Stop the currently running scheduler Thread
     def stop
+      log "Exiting scheduler process"
       @thread.exit
     end
 
@@ -66,6 +99,8 @@ module Allora
     private
 
     def create_job(opts, &block)
+      return opts if Job === opts
+
       raise ArgumentError "Missing schedule key (either :cron, or :every)" \
         unless opts.key?(:cron) || opts.key?(:every)
 
@@ -86,6 +121,10 @@ module Allora
         when Backend then opts[:backend]
         else raise "Unsupported backend '#{opts[:backend].inspect}'"
       end
+    end
+
+    def log(str)
+      @logger.info("Allora: #{str}") if @logger
     end
   end
 end
