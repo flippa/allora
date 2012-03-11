@@ -46,7 +46,7 @@ Create a file, for example "schedule.rb":
 When you run this file with ruby, it will remain in the foreground, providing log
 output.  It is *currently* your responsibility to daemonize the process.
 
-Note that the above example, we're only using the in-memory backend, so this
+Note that in the above example, we're only using the in-memory backend, so this
 probably shouldn't be run on multiple machines.
 
 In the following example, we specify to use a Redis backend, which is safe to run on
@@ -162,7 +162,7 @@ For the sake of clarity and brevity, here is a pseudo-code example:
 The backend sets a new time into its internal schedule if none is present for that job.
 
 It then tries to gain a lock on the schedule information for that job, returning false
-if not possible (and this not selecting the job from the input Hash).
+if not possible (and thus not selecting the job from the input Hash).
 
 If a lock was acquired, the time at which the job should run is checked.  If it is in the
 past, the scheule information is advanced to the next time at which the job should run and
