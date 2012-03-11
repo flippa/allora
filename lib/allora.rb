@@ -4,6 +4,7 @@ require "allora/scheduler"
 
 require "allora/backend"
 require "allora/backend/memory"
+require "allora/backend/redis"
 
 require "allora/job"
 require "allora/job/every_job"

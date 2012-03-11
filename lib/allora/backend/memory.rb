@@ -1,6 +1,15 @@
 module Allora
+  # A basic, single-process backend using a Hash.
+  #
+  # You should not run this on multiple machines on the same network.
   class Backend::Memory < Backend
+    # Initialize a new Memory backend.
+    #
+    # @params [Hash] opts
+    #   this backend does not accept any options
     def initialize(opts = {})
+      super
+
       @schedule = {}
     end
 

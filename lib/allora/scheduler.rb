@@ -14,7 +14,7 @@ module Allora
     # @param [Hash] options
     #   options for the scheduler, if any
     def initialize(opts = {})
-      @backend  = opts.fetch(:backend, Backend::Memory.new)
+      @backend  = create_backend(opts)
       @interval = opts.fetch(:interval, 0.333)
       @jobs     = {}
     end
@@ -67,12 +67,24 @@ module Allora
 
     def create_job(opts, &block)
       raise ArgumentError "Missing schedule key (either :cron, or :every)" \
-        unless opts[:cron] || opts[:every]
+        unless opts.key?(:cron) || opts.key?(:every)
 
-      if opts[:every]
+      if opts.key?(:every)
         Job::EveryJob.new(opts[:every], &block)
-      elsif opts[:cron]
+      elsif opts.key?(:cron)
         Job::CronJob.new(opts[:cron], &block)
+      end
+    end
+
+    def create_backend(opts)
+      return Backend::Memory.new unless opts.key?(:backend)
+
+      case opts[:backend]
+        when :memory then Backend::Memory.new
+        when :redis  then Backend::Redis.new(opts)
+        when Class   then opts[:backend].new(opts)
+        when Backend then opts[:backend]
+        else raise "Unsupported backend '#{opts[:backend].inspect}'"
       end
     end
   end
