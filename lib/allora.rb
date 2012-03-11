@@ -10,6 +10,15 @@ require "allora/job/every_job"
 
 module Allora
   class << self
+    # Create a new Scheduler, yield it and then start it.
+    #
+    # If the `:join` option is specified, the scheduler Thread is joined.
+    #
+    # @params [Hash] opts
+    #   options specifying a Backend to use, and any backend-specific options
+    #
+    # @return [Scheduler]
+    #   the running scheduler
     def start(opts = {})
       Scheduler.new(opts).tap do |s|
         yield s
