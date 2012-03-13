@@ -42,7 +42,7 @@ module Allora
 
       @backend  = create_backend(opts)
       @interval = opts.fetch(:interval, 0.333)
-      @logger   = opts.fetch(:logger, Logger.new(STDOUT))
+      @logger   = opts.fetch(:logger, default_logger)
       @jobs     = {}
     end
 
@@ -127,6 +127,14 @@ module Allora
 
     def log(str)
       @logger.info("Allora: #{str}") if @logger
+    end
+
+    def default_logger
+      Logger.new(STDOUT).tap do |logger|
+        logger.formatter = proc do |severity, datetime, progname, msg|
+          "#{datetime}: #{msg}\n"
+        end
+      end
     end
   end
 end

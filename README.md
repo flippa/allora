@@ -20,6 +20,11 @@ a job at midnight and the process is stopped at 23:59, then restarted at 00:01, 
 midnight job will still run.  Reentry is smart, however: it catches back up as soon
 as it has processed any overdue jobs (so it doesn't get stuck in the past).
 
+## Minimum Requirements
+
+  - ruby >= 1.9
+  - redis >= 1.3 (only if using the redis backend)
+
 ## Installation
 
 Via rubygems:
@@ -52,6 +57,8 @@ probably shouldn't be run on multiple machines.
 In the following example, we specify to use a Redis backend, which is safe to run on
 multiple machines:
 
+    require "redis"
+    
     Allora.start(:backend => :redis, :host => "redis.lan", :join => true) do |s|
       # a job that runs hourly
       s.add("empty_cache", :every => 1.hour) { `rm -f /path/to/cache/*` }
@@ -61,6 +68,9 @@ multiple machines:
     end
 
 We specify a redis host (and port) so that schedule data can be shared.
+
+Note that you must load redis yourself.  Allora does not directly depend on it, so that users
+may choose not to use it.
 
 ## Accessing your application environment
 
