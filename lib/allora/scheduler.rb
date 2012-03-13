@@ -61,6 +61,8 @@ module Allora
     # @return [Job]
     #   the job instance added to the schedule
     def add(name, opts_or_job, &block)
+      log "Loading into schedule '#{name}' #{opts_or_job.inspect}"
+
       jobs[name.to_s] = create_job(opts_or_job, &block)
     end
 
