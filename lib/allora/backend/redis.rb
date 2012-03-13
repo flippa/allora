@@ -57,7 +57,6 @@ module Allora
       set_last_time(current_time)
 
       jobs.select do |name, job|
-        redis.hsetnx(schedule_info_key, name, 1)
         redis.setnx(job_info_key(name), time_to_int(job.next_at(last_time)))
         update_job_info(job, name, current_time)
       end
@@ -73,8 +72,7 @@ module Allora
 
     # Forces all job data to be re-entered into Redis at the next poll
     def reset!
-      redis.hgetall(schedule_info_key) { |name, t| redis.del(job_info_key(name)) }
-      redis.del(schedule_info_key)
+      redis.keys(job_info_key("*")).each { |k| redis.del(job_info_key(k)) }
     end
 
     # Returns a Boolean specifying if the job can be run and no race condition occurred updating its info
@@ -89,10 +87,6 @@ module Allora
       else
         redis.unwatch && false
       end
-    end
-
-    def schedule_info_key
-      "#{prefix}_schedule"
     end
 
     def job_info_key(name)
