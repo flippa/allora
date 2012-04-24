@@ -44,6 +44,7 @@ module Allora
       @interval = opts.fetch(:interval, 0.333)
       @logger   = opts.fetch(:logger, default_logger)
       @jobs     = {}
+      @shutdown = false
     end
 
     # Register a new job for the given options.
@@ -73,12 +74,16 @@ module Allora
     def start
       log "Starting scheduler process, using #{@backend.class}"
 
+      %w[TERM INT QUIT].each { |sig| Signal.trap(sig) { stop } }
+
       @thread = Thread.new do
         loop do
           @backend.reschedule(@jobs).each do |name, job|
             log "Running job '#{name}'"
             job.execute
           end
+
+          Thread.exit if @shutdown
 
           sleep(@interval)
         end
@@ -88,7 +93,7 @@ module Allora
     # Stop the currently running scheduler Thread
     def stop
       log "Exiting scheduler process"
-      @thread.exit
+      @shutdown = true
     end
 
     # Join the currently running scheduler Thread.
