@@ -85,9 +85,9 @@ module Allora
       run_at = int_to_time(redis.get(job_info_key(name)))
 
       if run_at <= time
-        redis.multi
-        redis.set(job_info_key(name), time_to_int(job.next_at(time)))
-        redis.exec
+        redis.multi do
+          redis.set(job_info_key(name), time_to_int(job.next_at(time)))
+        end
       else
         redis.unwatch && false
       end
