@@ -43,7 +43,7 @@ Create a file, for example "schedule.rb":
     Allora.start(:join => true) do |s|
       # a job that runs hourly
       s.add("empty_cache", :every => 1.hour) { `rm -f /path/to/cache/*` }
-      
+
       # a job that runs based on a cron string
       s.add("update_stats", :cron => "0 2,14 * * *") { Resque.enqueue(UpdateStatsJob) }
     end
@@ -58,16 +58,16 @@ In the following example, we specify to use a Redis backend, which is safe to ru
 multiple machines:
 
     require "redis"
-    
+
     Allora.start(:backend => :redis, :host => "redis.lan", :join => true) do |s|
       # a job that runs hourly
       s.add("empty_cache", :every => 1.hour) { `rm -f /path/to/cache/*` }
-      
+
       # a job that runs based on a cron string
       s.add("update_stats", :cron => "0 2,14 * * *") { Resque.enqueue(UpdateStatsJob) }
     end
 
-We specify a redis host (and port) so that schedule data can be shared.
+We specify a redis host (and port) so that schedule data can be shared. The following options will be passed through to `Redis.new` and can be used to customize your connection settings: `:url`, `:port`, `:host`, `:db`, `:path`, `:password`.
 
 Note that you must load redis yourself.  Allora does not directly depend on it, so that users
 may choose not to use it.
