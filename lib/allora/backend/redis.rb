@@ -67,11 +67,12 @@ module Allora
     def create_redis(opts)
       return opts[:client] if opts.key?(:client)
 
-      ::Redis.new(
-        :host        => opts.fetch(:host, "localhost"),
-        :port        => opts.fetch(:port, 6379),
-        :thread_safe => true
-      )
+      ::Redis.new(redis_opts(opts).merge(:thread_safe => true))
+    end
+
+    def redis_opts(opts)
+      keys = [:host, :port, :db, :url, :path, :password]
+      keys.each_with_object({}) { |k, hash| hash[k] = opts[k] if opts.has_key?(k) }
     end
 
     # Forces all job data to be re-entered into Redis at the next poll
