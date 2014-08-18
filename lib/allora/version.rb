@@ -22,5 +22,5 @@
 ##
 
 module Allora
-  VERSION = "0.0.7"
+  VERSION = "0.1.7"
 end
