@@ -77,7 +77,7 @@ module Allora
 
     # Forces all job data to be re-entered into Redis at the next poll
     def reset!
-      redis.keys(job_info_key("*")).each { |k| redis.del(job_info_key(k)) }
+      redis.keys(job_info_key("*")).each { |k| redis.del(k) }
     end
 
     # Returns a Boolean specifying if the job can be run and no race condition occurred updating its info
