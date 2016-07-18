@@ -1,5 +1,7 @@
 ### head
 
+### 0.1.9
+
 * New redis backend instances call `#reset!` conditionally [iamliamnorton]
 
 ### 0.1.8
