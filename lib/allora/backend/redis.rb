@@ -41,6 +41,7 @@ module Allora
     #   host:   the hostname of a Redis server
     #   port:   the port number of a Redis server
     #   prefix: a namespace prefix to use
+    #   reset:  delete existing job timing keys in Redis
     #
     # @param [Hash] opts
     #   options for the Redis backend
@@ -48,7 +49,7 @@ module Allora
       @redis  = create_redis(opts)
       @prefix = opts.fetch(:prefix, "allora")
 
-      reset!
+      reset! if opts.fetch(:reset, true)
     end
 
     def reschedule(jobs)
