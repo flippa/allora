@@ -33,6 +33,7 @@ module Allora
   class Backend::Redis < Backend
     attr_reader :redis
     attr_reader :prefix
+    attr_reader :ttl
 
     # Initialize the Redis backed with the given options.
     #
@@ -41,13 +42,15 @@ module Allora
     #   host:   the hostname of a Redis server
     #   port:   the port number of a Redis server
     #   prefix: a namespace prefix to use
-    #   reset:  delete existing job timing keys in Redis
+    #   reset:  delete existing job timing entries in Redis
+    #   ttl:    ttl for job timing entries in Redis
     #
     # @param [Hash] opts
     #   options for the Redis backend
     def initialize(opts = {})
       @redis  = create_redis(opts)
       @prefix = opts.fetch(:prefix, "allora")
+      @ttl = Integer opts.fetch(:ttl, 0)
 
       reset! if opts.fetch(:reset, true)
     end
@@ -89,6 +92,7 @@ module Allora
       if run_at <= time
         redis.multi do
           redis.set(job_info_key(name), time_to_int(job.next_at(time)))
+          redis.expire(job_info_key(name), ttl) if ttl > 0
         end
       else
         redis.unwatch && false
