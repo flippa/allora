@@ -1,5 +1,7 @@
 ### head
 
+### 0.1.10
+
 * Redis backend store can specify a TTL [iamliamnorton]
 
 ### 0.1.9
