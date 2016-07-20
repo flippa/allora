@@ -1,5 +1,7 @@
 ### head
 
+* Redis backend store can specify a TTL [iamliamnorton]
+
 ### 0.1.9
 
 * New redis backend instances call `#reset!` conditionally [iamliamnorton]
